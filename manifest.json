@@ -1,0 +1,17 @@
+{
+  "name": "Plan Clínico Paz",
+  "short_name": "PlanPaz",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0b1120",
+  "theme_color": "#0b1120",
+  "description": "Rutina diaria, movilidad extra y seguimiento personal de fuerza y bienestar.",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b1120" />
+  <title>Plan Clínico Paz</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card: #151f32;
+      --card-2: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --sky: #38bdf8;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --border: #283548;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding-bottom: 120px;
+      overflow-x: hidden;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(11, 17, 32, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #1e293b;
+      padding: 12px 0;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+    .brand-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: var(--sky);
+      font-weight: 800;
+    }
+    .title {
+      font-size: clamp(1.05rem, 1.2vw + 0.8rem, 1.65rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin: 0;
+    }
+    .subtitle {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .chip,
+    .btn,
+    .tab,
+    .mini-btn {
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0f172a;
+      color: var(--muted);
+      padding: 7px 10px;
+      transition: 0.15s ease;
+    }
+    .btn {
+      color: #dbeafe;
+      border-color: rgba(56, 189, 248, 0.35);
+      background: rgba(56, 189, 248, 0.1);
+      font-weight: 600;
+    }
+    .btn:hover, .tab:hover, .mini-btn:hover { border-color: var(--sky); color: #fff; }
+    .btn.danger {
+      color: #fecdd3;
+      border-color: rgba(244, 63, 94, 0.4);
+      background: rgba(244, 63, 94, 0.12);
+    }
+    .progress-wrap { margin-top: 12px; }
+    .progress {
+      height: 8px;
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--sky), var(--emerald));
+      transition: width 0.25s ease;
+    }
+    .progress-meta {
+      margin-top: 7px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 18px 0 12px;
+      scrollbar-width: none;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      flex-shrink: 0;
+      font-weight: 700;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      background: var(--card);
+      color: var(--muted);
+    }
+    .tab.active {
+      background: var(--sky);
+      color: #082f49;
+      border-color: var(--sky);
+      box-shadow: 0 4px 15px rgba(56, 189, 248, 0.25);
+    }
+    .panel { display: none; }
+    .panel.active { display: block; animation: fadeIn 0.22s ease; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .stack { display: grid; gap: 14px; }
+    .card {
+      background: linear-gradient(180deg, #162238 0%, #111a2e 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 17px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover { border-color: #3b4f6b; }
+    .card.completed {
+      border-color: rgba(16, 185, 129, 0.8);
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, #111a2e 100%);
+    }
+    .eyebrow {
+      color: #6ee7b7;
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .card-title { margin: 5px 0 8px; font-size: 1.05rem; font-weight: 800; }
+    .dosage {
+      display: inline-block;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--border);
+      color: #bae6fd;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 4px 8px;
+      margin-bottom: 8px;
+    }
+    .details {
+      color: #dbeafe;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+    .details p { margin: 0 0 8px; }
+    .soft,
+    .caution,
+    .stop,
+    .notice {
+      border-radius: 10px;
+      padding: 10px 11px;
+      font-size: 0.78rem;
+      margin-top: 8px;
+      line-height: 1.45;
+    }
+    .soft {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #bbf7d0;
+    }
+    .caution {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #fef3c7;
+    }
+    .stop {
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid rgba(244, 63, 94, 0.36);
+      color: #ffe4e6;
+    }
+    .notice {
+      border-left: 4px solid var(--sky);
+      background: rgba(56, 189, 248, 0.08);
+      color: #e0f2fe;
+      border-radius: 0 12px 12px 0;
+      padding: 12px 14px;
+      font-size: 0.82rem;
+    }
+    .notice.warn {
+      border-left-color: var(--amber);
+      background: rgba(245, 158, 11, 0.08);
+      color: #fef3c7;
+    }
+    .notice.stop {
+      border-left-color: var(--rose);
+      background: rgba(244, 63, 94, 0.08);
+      color: #ffe4e6;
+    }
+    .action-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      padding-top: 11px;
+      border-top: 1px solid #1e293b;
+    }
+    .checkline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: #dbeafe;
+    }
+    .checkline input { accent-color: var(--emerald); }
+    .mini-btn {
+      background: rgba(56, 189, 248, 0.08);
+      color: #bae6fd;
+      border-color: rgba(56, 189, 248, 0.35);
+      font-weight: 600;
+      padding: 7px 9px;
+    }
+    .sets {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .set-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background: #0b1120;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .set-btn.done {
+      background: var(--emerald);
+      border-color: var(--emerald);
+      color: #082f49;
+    }
+    .input-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .field {
+      display: grid;
+      gap: 4px;
+      color: var(--muted);
+      font-size: 0.7rem;
+    }
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      background: #0b1120;
+      color: var(--text);
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 9px 10px;
+    }
+    .field textarea { min-height: 56px; resize: vertical; }
+    .inline-switch {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .inline-switch .tab {
+      background: var(--card);
+      color: var(--muted);
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+    .inline-switch .tab.active {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #bbf7d0;
+    }
+    .hidden { display: none !important; }
+    .small { font-size: 0.76rem; color: var(--muted); }
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.6;
+    }
+    .status-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #7dd3fc;
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+    @media (max-width: 720px) {
+      .input-row {
+        grid-template-columns: 1fr;
+      }
+      .wrap { padding: 0 12px; }
+      .card { padding: 14px; }
+      .title { font-size: 1.2rem; }
+      .brand-row { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <div class="brand-row">
+        <div class="brand">
+          <div class="brand-mark">P</div>
+          <div>
+            <h1 class="title">Plan Clínico Paz</h1>
+            <div class="subtitle">Rutina personal · fuerza, postura y bienestar sostenido</div>
+          </div>
+        </div>
+        <div class="toolbar">
+          <button class="mini-btn" id="timerToggle" type="button">⏱ Descanso 60 s</button>
+          <button class="btn" id="resetToday" type="button">Reiniciar día</button>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress" aria-label="Progreso del día">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-meta">
+          <span id="progressText">0/0 ejercicios marcados</span>
+          <span id="dateText"></span>
+          <span id="timerStatus" class="status-line">Sin temporizador</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <nav class="tabs no-scrollbar" aria-label="Secciones de la app">
+      <button class="tab active" data-target="casa" type="button">🏠 Rutina diaria</button>
+      <button class="tab" data-target="movilidad" type="button">🔓 Movilidad extra</button>
+      <button class="tab" data-target="gym" type="button">🏋️ Gimnasio 3×/semana</button>
+      <button class="tab" data-target="seguimiento" type="button">📝 Seguimiento</button>
+    </nav>
+
+    <section id="casa" class="panel active stack">
+      <div class="notice">
+        <strong>Rutina breve y adaptable:</strong> prioriza movimientos cómodos, de rango pequeño y pausas activas cada 45–60 minutos. Si el dolor, el tinnitus, el mareo, la sensación de entumecimiento o cualquier síntoma empeora, reduce el rango o para.
+      </div>
+
+      <article class="card exercise-card" data-id="casa-pausa">
+        <div class="eyebrow">A lo largo de la jornada</div>
+        <h2 class="card-title">1. Pausa activa de escritorio</h2>
+        <span class="dosage">1–3 min · repetir si hace falta</span>
+        <div class="details">
+          <p>Levántate, camina unos pasos o cambia la postura del tronco. Puedes separar los hombros, estirar los brazos y respirar de forma tranquila. No hace falta llegar a una “postura perfecta”.</p>
+          <div class="soft"><strong>Alternativa suave:</strong> si prefieres seguir sentada, desplaza ligeramente el peso, vuelve a sentarte de pie y haz 3 respiraciones largas.</div>
+          <div class="caution"><strong>Detente:</strong> si aumenta el dolor, el tinnitus, el mareo, el entumecimiento u otros síntomas.</div>
+        </div>
+        <div class="action-row">
+          <label class="checkline"><input type="checkbox" class="done-check"> Hecho</label>
+          <button class="mini-btn" type="button">⏱ 1 min</button>
+        </div>
+        <div class="input-row">
+          <label class="field">
+            ¿Cómo me sentí?
+            <select class="feeling-select">
+              <option value="">Sin registrar</option>
+              <option>Bien / cómodo</option>
+              <option>Igual</option>
+              <option>Molestia leve</option>
+              <option>Peor</option>
+            </select>
+          </label>
+          <label class="field">
+            Registro
+            <input type="text" class="symptom-input" placeholder="Nota opcional">
+          </label>
+          <label class="field">
+            Síntomas
+            <input type="text" class="symptom-input-2" placeholder="Dolor, tinnitus, etc.">
+          </label>
+        </div>
+      </article>
+
+      <article class="card exercise-card" data-id="casa-cuello">
+        <div class="eyebrow">Cuello · sin fuerza</div>
+        <h2 class="card-title">2. Asentimiento suave</h2>
+        <span class="dosage">5–8 repeticiones lentas · 30–40 s</span>
+        <div class="details">
+          <p>Sentada o de pie, mira al frente y deja que la cabeza haga un pequeño movimiento de “sí” sin empujar ni forzar. Vuelve al centro con calma.</p>
+          <div class="soft"><strong>Alternativa suave:</strong> omite el movimiento y solo relaja los hombros mientras respiras.</div>
+          <div class="caution"><strong>Detente:</strong> si empeora el dolor, el tinnitus o aparecen mareo, entumecimiento u otros síntomas.</div>
+        </div>
+        <div class="action-row">
+          <label class="checkline"><input type="checkbox" class="done-check"> Hecho</label>
+          <button class="mini-btn" type="button">⏱ 30 s</button>
+        </div>
+        <div class="input-row">
+          <label class="field">
+            ¿Cómo me sentí?
+            <select class="feeling-select">
+              <option value="">Sin registrar</option>
+              <option>Bien / cómodo</option>
+              <option>Igual</option>
+              <option>Molestia leve</option>
+              <option>Peor</option>
+            </select>
+          </label>
+          <label class="field">
+            Registro
+            <input type="text" class="symptom-input" placeholder="Nota opcional">
+          </label>
+          <label class="field">
+            Síntomas
+            <input type="text" class="symptom-input-2" placeholder="Dolor, tinnitus, etc.">
+          </label>
+        </div>
+      </article>
+
+      <article class="card exercise-card" data-id="casa-hombros">
+        <div class="eyebrow">Hombros</div>
+        <h2 class="card-title">3. Círculos pequeños de hombros</h2>
+        <span class="dosage">5 hacia delante + 5 hacia atrás · sin llegar arriba</span>
+        <div class="details">
+          <p>Deja los brazos sueltos y dibuja círculos pequeños con los hombros, sin elevar los brazos por encima de la cabeza ni empujar más de lo que resulte cómodo.</p>
+          <div class="soft"><strong>Alternativa suave:</strong> una simple rotación de hombros o un pequeño descenso de las escápulas.</div>
+          <div class="caution"><strong>Detente:</strong> si aumentan el dolor o el tinnitus o aparecen mareo, hormigueo u otros síntomas.</div>
+        </div>
+        <div class="action-row">
+          <label class="checkline"><input type="checkbox" class="done-check"> Hecho</label>
+          <button class="mini-btn" type="button">⏱ 20 s</button>
+        </div>
+        <div class="input-row">
+          <label class="field">
+            ¿Cómo me sentí?
+            <select class="feeling-select">
+              <option value="">Sin registrar</option>
+              <option>Bien / cómodo</option>
+              <option>Igual</option>
+              <option>Molestia leve</option>
+              <option>Peor</option>
+            </select>
+          </label>
+          <label class="field">
+            Registro
+            <input type="text" class="symptom-input" placeholder="Nota opcional">
+          </label>
+          <label class="field">
+            Síntomas
+            <input type="text" class="symptom-input-2" placeholder="Dolor, tinnitus, etc.">
+          </label>
+        </div>
+      </article>
+
+      <article class="card exercise-card" data-id="casa-espalda">
+        <div class="eyebrow">Parte alta de la espalda</div>
+        <h2 class="card-title">4. Apertura torácica con respaldo</h2>
+        <span class="dosage">4–6 respiraciones lentas · 30–45 s</span>
+        <div class="details">
+          <p>Sentada, apoya la espalda y deja que el pecho se abra suavemente sin arquear la zona lumbar ni empujar el cuello. La sensación debe ser de mayor libertad, no de tensión.</p>
+          <div class="soft"><strong>Alternativa suave:</strong> solo levanta suavemente el esternón y vuelve con el abdomen relajado.</div>
+          <div class="caution"><strong>Detente:</strong> si aumenta el dolor, el tinnitus o aparece mareo, entumecimiento u otros síntomas.</div>
+        </div>
+        <div class="action-row">
+          <label class="checkline"><input type="checkbox" class="done-check"> Hecho</label>
+          <button class="mini-btn" type="button">⏱ 30 s</button>
+        </div>
+        <div class="input-row">
+          <label class="field">
+            ¿Cómo me sentí?
+            <select class="feeling-select">
+              <option value="">Sin registrar</option>
+              <option>Bien / cómodo</option>
+              <option>Igual</option>
+              <option>Molestia leve</option>
+              <option>Peor</option>
+            </select>
+          </label>
+          <label class="field">
+            Registro
+            <input type="text" class="symptom-input" placeholder="Nota opcional">
+          </label>
+          <label class="field">
+            Síntomas
+            <input type="text" class="symptom-input-2" placeholder="Dolor, tinnitus, etc.">
+          </label>
+        </div>
+      </article>
+    </section>
+
+    <section id="movilidad" class="panel stack">
+      <div class="notice">
+        <strong>Movilidad extra:</strong> Higiene general de postura, rango cómodo y pausas. Elige sesión breve o completa, y omite cualquier movimiento que no te haga bien. No recomendamos manipulaciones bruscas del cuello ni estiramientos intensos.
+      </div>
+
+      <div class="inline-switch" aria-label="Modo movilidad">
+        <button class="tab active" data-mode="breve" type="button">Sesión breve · 5–7 min</button>
+        <button class="tab" data-mode="completa" type="button">Sesión completa · 10–12 min</button>
+      </div>
+
+      <article class="card exercise-card mobility-card" data-id="mov-respiracion">
+        <div class="eyebrow">Entrada</div>
+        <h2 class="card-title">1. Respiración tranquila y hombros sueltos</h2>
+        <span class="dosage">Breve: 1 min · Completa: 2 min</span>
+        <div class="details">
+          <p>Respira de forma natural y amplia, sin forzar la caja torácica ni subir los hombros. Si te resulta mejor, apoya una mano sobre el abdomen.</p>
+          <div class="soft"><strong>Alternativa:</strong> omite este paso y comienza con la siguiente movilidad.</div>
+          <div class="caution"><strong>Detente:</strong> si aparece mareo o empeoran síntomas físicos.</div>
+        </div>
+        <div class="action-row">
+          <label class="checkline"><input type="checkbox" class="done-check"> Hecho</label>
+          <label class="checkline"><input type="checkbox" class="skip-check"> Omitir</label>
+        </div>
+      </article>
+
+      <article class="card exercise-card mobility-card" data-id="mov-torax">
+        <div class="eyebrow">Tórax</div>
+        <h2 class="card-title">2. Giro torácico sentado en rango pequeño</h2>
+        <span class="dosage">Breve: 4 por lado · Completa: 6 por lado</span>
+        <div class="details">
+          <p>Siéntate con los pies apoyados, coloca las manos en los muslos y giras ligeramente el tronco a un lado. La cabeza acompaña solo lo necesario; no empujes el cuello.</p>
+          <div class="soft"><strong>Alternativa:</strong> solo una pequeña respiración en cada lado o simplemente un ajuste de postura.</div>
+          <div class="caution"><strong>Detente:</strong> si aumenta el dolor, el tinnitus, aparece mareo o cualquier otro síntoma.</div>
+        </div>
+        <div class="action-row">
+          <label class="checkline"><input type="checkbox" class="done-check"> Hecho</label>
+          <label class="checkline"><input type="checkbox" class="skip-check"> Omitir</label>
+        </div>
+      </article>
+
+      <article class="card exercise-card mobility-card" data-id="mov-pectoral">
+        <div class="eyebrow">Pecho</div>
+        <h2 class="card-title">3. Apertura de pecho junto a la pared</h2>
+        <span class="dosage">Breve: 15 s por lado · Completa: 20 s por lado</span>
+        <div class="details">
+          <p>Apoya la mano en la pared a la altura de la parte alta del pecho y gira el cuerpo ligeramente evitando un estiramiento fuerte. El movimiento debe ser cómodo y controlado.</p>
+          <div class="soft"><strong>Alternativa:</strong> si no te resulta cómodo, pasa a una respiración larga o omite.</div>
+          <div class="caution"><strong>Detente:</strong> si el dolor o el tinnitus empeoran o aparece hormigueo, mareo u otros síntomas.</div>
+        </div>
+        <div class="action-row">
+          <label class="checkline"><input type="checkbox" class="done-check"> Hecho</label>
+          <label class="checkline"><input type="checkbox" class="skip-check"> Omitir</label>
+        </div>
+      </article>
+
+      <article class="card exercise-card mobility-card" data-id="mov-cadera">
+        <div class="eyebrow">Cadera</div>
+        <h2 class="card-title">4. Balance de cadera sentado</h2>
+        <span class="dosage">Breve: 6 balanceos · Completa: 10</span>
+        <div class="details">
+          <p>Siéntate con la espalda erguida. Inclina apenas la pelvis hacia delante y detrás, sin empujar ni mantener un estiramiento largo.</p>
+          <div class="soft"><strong>Alternativa:</strong> un movimiento muy breve o solo la postura sentada con respiración tranquila.</div>
+          <div class="caution"><strong>Detente:</strong> si crece la molestia o cualquier síntoma nuevo.</div>
+        </div>
+        <div class="action-row">
+          <label class="checkline"><input type="checkbox" class="done-check"> Hecho</label>
+          <label class="checkline"><input type="checkbox" class="skip-check"> Omitir</label>
+        </div>
+      </article>
+    </section>
+
+    <section id="gym" class="panel stack">
+      <div class="notice warn">
+        Tres sesiones semanales, idealmente separadas por descanso o recuperación. Empieza con carga fácil y técnica cómoda; si te cuesta mucho o aparecen síntomas, reduce rango, carga o series. Evita levantar los brazos por encima de la cabeza y evita empujar desde abajo hacia arriba.
+      </div>
+
+      <div class="inline-switch" aria-label="Sesiones de gimnasio">
+        <button class="tab active" data-session="A" type="button">Sesión A · Piernas + core</button>
+        <button class="tab" data-session="B" type="button">Sesión B · Superior</button>
+        <button class="tab" data-session="C" type="button">Sesión C · Cuerpo completo</button>
+      </div>
+
+      <div id="gymList" class="stack"></div>
+    </section>
+
+    <section id="seguimiento" class="panel stack">
+      <div class="notice stop">
+        <strong>Revisión rápida:</strong> si aparece pérdida repentina de audición, mareo importante, debilidad, adormecimiento o dolor agudo, deja de hacer el ejercicio y pide orientación profesional. El tinnitus persistente de un solo oído y el dolor crónico merecen evaluación por un profesional de salud.
+      </div>
+
+      <article class="card">
+        <div class="eyebrow">Check-in</div>
+        <h2 class="card-title">¿Cómo me siento hoy?</h2>
+        <div class="input-row">
+          <label class="field">
+            Energía
+            <select id="energyLevel">
+              <option value="">Sin registrar</option>
+              <option>Baja</option>
+              <option>Media</option>
+              <option>Buena</option>
+            </select>
+          </label>
+          <label class="field">
+            Síntomas generales
+            <select id="symptomLevel">
+              <option value="">Sin registrar</option>
+              <option>Más cómodos</option>
+              <option>Igual</option>
+              <option>Más molestos</option>
+            </select>
+          </label>
+          <label class="field">
+            Nota del día
+            <input id="dayNote" type="text" placeholder="Opcional">
+          </label>
+        </div>
+        <div class="action-row">
+          <span class="small">La app guarda esta información solo en este navegador.</span>
+          <button class="btn" id="saveDay" type="button">Guardar nota</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="eyebrow">Composición corporal</div>
+        <h2 class="card-title">Enfoque sostenible</h2>
+        <div class="details">
+          <p>No se puede “reducir grasa localizada” de forma específica. El objetivo es mejorar fuerza, postura y composición corporal de forma saludable: ganar o mantener músculo, mantener el peso actual si hace sentido para ti y cuidar la recuperación, sin obsesión por la báscula ni medidas.</p>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="eyebrow">Datos</div>
+        <h2 class="card-title">Exportar y guardar</h2>
+        <div class="action-row">
+          <button class="btn" id="exportData" type="button">Descargar copia</button>
+          <button class="btn danger" id="clearData" type="button">Borrar registros</button>
+          <label class="btn" for="importFile">Importar copia</label>
+          <input id="importFile" type="file" accept="application/json" class="hidden" />
+        </div>
+      </article>
+    </section>
+
+    <div class="footer-note">
+      Esta app organiza la rutina y el seguimiento; no sustituye una evaluación médica o fisioterapéutica. Consulta antes de empezar o modificar sustancialmente la rutina, especialmente si tus síntomas empeoran. No uses el dolor como objetivo ni entrenes a través de síntomas que aumentan.
+    </div>
+  </main>
+
+  <script>
+    const STORAGE_KEY = 'plan-clinico-paz-v1';
+    const sessionPlans = {
+      A: {
+        title: 'Sesión A · Piernas + core',
+        note: 'Calentamiento de 8–10 min, fuerza funcional y estabilidad, con opciones suaves y pausas.',
+        items: [
+          ['Calentamiento: caminata y movilidad ligera', '8–10 min', 'Camina a ritmo fácil y haz movilidad de hombros y cadera. Alternativa: menos tiempo o incluso caminata suave. No hace falta llegar a un máximo.', 'Piernas / general'],
+          ['Sentadilla a banco o silla con apoyo', '3 x 8–10', 'Baja con control hasta una profundidad cómoda. Si se siente bien, puedes añadir un pequeño peso. Alternativa: sentarse y levantarse de una silla más alta.', 'Piernas'],
+          ['Puente de glúteo en suelo', '3 x 10–12', 'Eleva la pelvis con control, manteniendo la espalda relajada. Alternativa: menos rango o una serie más corta. Si se siente cómodo, añade banda o pesa ligera.', 'Glúteos'],
+          ['Dead bug modificado', '2–3 x 6–8 por lado', 'Mueve un talón unos centímetros y vuelve al centro con control. No fuerces la zona lumbar. Alternativa: menos rango o plancha de rodillas.', 'Core'],
+          ['Abducción de cadera con banda suave o sin banda', '2–3 x 10–12', 'Abre ligeramente la cadera sin perder la alineación del tronco. Alternativa: omitir o quedarse con un rango muy pequeño.', 'Glúteos'],
+          ['Plancha de rodillas o pared', '2 x 20–30 s', 'Apoya rodillas o pared y activa abdomen sin forzar. Alternativa: menos tiempo o una presión corta contra la pared.', 'Core']
+        ]
+      },
+      B: {
+        title: 'Sesión B · Superior',
+        note: 'Fuerza de espalda, brazos y pecho sin sobrecargar el hombro ni los brazos por encima de la cabeza.',
+        items: [
+          ['Calentamiento: caminar y movilidad ligero', '8–10 min', 'Ajusta al día y mueve hombros y pecho sin elevarlos por encima de la cabeza. Alternativa: caminar solo.', 'General'],
+          ['Jalón al pecho o remo con banda', '3 x 8–12', 'Tira de forma cómoda en una amplitud que no provoque síntomas. Alternativa: banda ligera o menos intensidad. No llevar la carga detrás del cuello.', 'Espalda'],
+          ['Press de pecho con mancuernas o máquina', '2–3 x 8–12', 'Empuje a la altura del pecho, sin llevar los brazos por encima de la cabeza. Alternativa: pared o rango corto.', 'Pecho'],
+          ['Curl de bíceps con carga ligera', '2–3 x 10–12', 'Movimiento controlado y sin balanceo. Alternativa: banda suave o omitir.', 'Brazos'],
+          ['Extensión de tríceps con banda baja', '2–3 x 10–12', 'Evita llevar los brazos por encima de los hombros. Alternativa: menos rango o omitir.', 'Brazos'],
+          ['Bird-dog modificado o apoyo cuadrúpede', '2 x 5–6 por lado', 'Mueve una pierna o un brazo sin perder la postura. Alternativa: versión más corta o sentada.', 'Core']
+        ]
+      },
+      C: {
+        title: 'Sesión C · Cuerpo completo',
+        note: 'Combinación compacta con fuerza de piernas, espalda y control básico del core.',
+        items: [
+          ['Calentamiento general', '8–10 min', 'Paseo suave, movilidad de cadera y hombros. Alternativa: menos tiempo si lo haces mejor.', 'General'],
+          ['Step-up bajo con apoyo', '2–3 x 8 por lado', 'Sube y baja con control, usando un escalón bajo y soporte si hace falta. Alternativa: silla o menor altura.', 'Piernas'],
+          ['Peso muerto rumano suave o bisagra de cadera', '2–3 x 8–10', 'Mantén la espalda cómoda y una pequeña amplitud. Alternativa: menos peso o rango menor.', 'Glúteos / espalda'],
+          ['Remo o jalón en un rango cómodo', '3 x 8–12', 'Elige la variante que te resulte más cómoda. Alternativa: banda o menos resistencia.', 'Espalda'],
+          ['Plancha lateral con rodillas o pared', '2 x 15–25 s por lado', 'Solo si es cómoda. Alternativa: plancha corta, pared o dead bug.', 'Core'],
+          ['Press de pecho horizontal con recorrido corto', '2 x 8–12', 'Empuje controlado a la altura del pecho. Alternativa: pared o máquina con menor cantidad.', 'Pecho']
+        ]
+      }
+    };
+
+    function loadState() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function saveState(state) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function getDayKey() {
+      const d = new Date();
+      return d.toISOString().slice(0, 10);
+    }
+
+    function ensureDayEntry(state) {
+      const key = getDayKey();
+      state.days = state.days || {};
+      state.days[key] = state.days[key] || {};
+      state.days[key].items = state.days[key].items || {};
+      return state.days[key];
+    }
+
+    function getRecord(id) {
+      const state = loadState();
+      const day = ensureDayEntry(state);
+      day.items[id] = day.items[id] || {};
+      saveState(state);
+      return day.items[id];
+    }
+
+    function updateProgress() {
+      const visibleChecks = document.querySelectorAll('.exercise-card .done-check:checked');
+      const totalChecks = document.querySelectorAll('.exercise-card .done-check').length;
+      const pct = totalChecks ? (visibleChecks.length / totalChecks) * 100 : 0;
+      document.getElementById('progressFill').style.width = pct + '%';
+      document.getElementById('progressText').textContent = visibleChecks.length + '/' + totalChecks + ' ejercicios marcados';
+    }
+
+    function persistExerciseCard(card) {
+      const id = card.dataset.id;
+      const record = getRecord(id);
+      const check = card.querySelector('.done-check');
+      const skip = card.querySelector('.skip-check');
+      const feeling = card.querySelector('.feeling-select');
+      const note = card.querySelector('.symptom-input');
+      const symptoms = card.querySelector('.symptom-input-2');
+
+      if (check) {
+        check.checked = !!record.done;
+        check.addEventListener('change', () => {
+          const state = loadState();
+          const day = ensureDayEntry(state);
+          day.items[id] = day.items[id] || {};
+          day.items[id].done = check.checked;
+          if (check.checked && skip) {
+            day.items[id].skip = false;
+            skip.checked = false;
+          }
+          saveState(state);
+          card.classList.toggle('completed', !!check.checked);
+          updateProgress();
+        });
+      }
+
+      if (skip) {
+        skip.checked = !!record.skip;
+        skip.addEventListener('change', () => {
+          const state = loadState();
+          const day = ensureDayEntry(state);
+          day.items[id] = day.items[id] || {};
+          day.items[id].skip = skip.checked;
+          if (skip.checked && check) {
+            day.items[id].done = false;
+            check.checked = false;
+          }
+          saveState(state);
+          card.classList.toggle('completed', !!check.checked);
+          updateProgress();
+        });
+      }
+
+      if (feeling) {
+        feeling.value = record.feeling || '';
+        feeling.addEventListener('change', () => {
+          const state = loadState();
+          const day = ensureDayEntry(state);
+          day.items[id] = day.items[id] || {};
+          day.items[id].feeling = feeling.value;
+          saveState(state);
+        });
+      }
+
+      if (note) {
+        note.value = record.note || '';
+        note.addEventListener('input', () => {
+          const state = loadState();
+          const day = ensureDayEntry(state);
+          day.items[id] = day.items[id] || {};
+          day.items[id].note = note.value;
+          saveState(state);
+        });
+      }
+
+      if (symptoms) {
+        symptoms.value = record.symptoms || '';
+        symptoms.addEventListener('input', () => {
+          const state = loadState();
+          const day = ensureDayEntry(state);
+          day.items[id] = day.items[id] || {};
+          day.items[id].symptoms = symptoms.value;
+          saveState(state);
+        });
+      }
+
+      card.classList.toggle('completed', !!record.done);
+    }
+
+    function bindAllExercises() {
+      document.querySelectorAll('.exercise-card').forEach((card) => persistExerciseCard(card));
+      updateProgress();
+    }
+
+    function renderGym() {
+      const sessionKey = document.querySelector('.tab[data-session].active')?.dataset.session || 'A';
+      const plan = sessionPlans[sessionKey];
+      const list = document.getElementById('gymList');
+      list.innerHTML = plan.items.map((item, index) => {
+        const id = `gym-${sessionKey}-${index}`;
+        const state = loadState();
+        const day = ensureDayEntry(state);
+        const rec = day.items[id] || {};
+        const sets = rec.sets || [];
+        return `
+          <article class="card exercise-card" data-id="${id}">
+            <div class="eyebrow">${item[3]} · ${plan.title}</div>
+            <h2 class="card-title">${index + 1}. ${item[0]}</h2>
+            <span class="dosage">${item[1]}</span>
+            <div class="details">
+              <p>${item[2]}</p>
+              <div class="caution"><strong>Precaución:</strong> si empeora el dolor, el tinnitus, el mareo, la sensación de entumecimiento o cualquier síntoma, ajusta rango, carga o omite el ejercicio.</div>
+            </div>
+            <div class="action-row">
+              <div class="sets">
+                <span class="small">Series:</span>
+                ${[1,2,3].map((n) => `
+                  <button type="button" class="set-btn ${sets.includes(n) ? 'done' : ''}" data-set="${n}">${n}</button>
+                `).join('')}
+              </div>
+              <button type="button" class="mini-btn timer-btn">⏱ Descanso 60 s</button>
+            </div>
+            <div class="input-row">
+              <label class="field">
+                Variante / carga
+                <input type="text" class="load-input" value="${rec.load || ''}" placeholder="Opcional">
+              </label>
+              <label class="field">
+                ¿Cómo me sentí?
+                <select class="feeling-select">
+                  <option value="">Sin registrar</option>
+                  <option ${rec.feeling === 'Bien / cómodo' ? 'selected' : ''}>Bien / cómodo</option>
+                  <option ${rec.feeling === 'Igual' ? 'selected' : ''}>Igual</option>
+                  <option ${rec.feeling === 'Molestia leve' ? 'selected' : ''}>Molestia leve</option>
+                  <option ${rec.feeling === 'Peor' ? 'selected' : ''}>Peor</option>
+                </select>
+              </label>
+              <label class="field">
+                Registro / síntomas
+                <input type="text" class="symptom-input" value="${rec.note || ''}" placeholder="Opcional">
+              </label>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      list.querySelectorAll('.set-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const card = btn.closest('.exercise-card');
+          const id = card.dataset.id;
+          const state = loadState();
+          const day = ensureDayEntry(state);
+          day.items[id] = day.items[id] || {};
+          const setValue = Number(btn.dataset.set);
+          const current = day.items[id].sets || [];
+          day.items[id].sets = current.includes(setValue)
+            ? current.filter((n) => n !== setValue)
+            : [...current, setValue];
+          saveState(state);
+          btn.classList.toggle('done', day.items[id].sets.includes(setValue));
+          card.classList.toggle('completed', day.items[id].sets && day.items[id].sets.length > 0);
+          updateProgress();
+        });
+      });
+
+      list.querySelectorAll('.timer-btn').forEach((btn) => {
+        btn.addEventListener('click', () => startTimer(60));
+      });
+
+      list.querySelectorAll('.load-input, .feeling-select, .symptom-input').forEach((el) => {
+        el.addEventListener('input', () => {
+          if (el.matches('.load-input')) {
+            const card = el.closest('.exercise-card');
+            const state = loadState();
+            const day = ensureDayEntry(state);
+            day.items[card.dataset.id] = day.items[card.dataset.id] || {};
+            day.items[card.dataset.id].load = el.value;
+            saveState(state);
+          }
+          if (el.matches('.feeling-select')) {
+            const card = el.closest('.exercise-card');
+            const state = loadState();
+            const day = ensureDayEntry(state);
+            day.items[card.dataset.id] = day.items[card.dataset.id] || {};
+            day.items[card.dataset.id].feeling = el.value;
+            saveState(state);
+          }
+          if (el.matches('.symptom-input')) {
+            const card = el.closest('.exercise-card');
+            const state = loadState();
+            const day = ensureDayEntry(state);
+            day.items[card.dataset.id] = day.items[card.dataset.id] || {};
+            day.items[card.dataset.id].note = el.value;
+            saveState(state);
+          }
+        });
+      });
+    }
+
+    let timer = null;
+    let timerRemaining = 60;
+    function startTimer(seconds) {
+      timerRemaining = seconds;
+      clearInterval(timer);
+      renderTimer();
+      timer = setInterval(() => {
+        timerRemaining -= 1;
+        if (timerRemaining <= 0) {
+          clearInterval(timer);
+          timerRemaining = 0;
+          renderTimer();
+          if (navigator.vibrate) navigator.vibrate(180);
+          return;
+        }
+        renderTimer();
+      }, 1000);
+    }
+
+    function renderTimer() {
+      const label = timerRemaining > 0 ? `Descanso: ${timerRemaining}s` : 'Descanso finalizado';
+      document.getElementById('timerStatus').textContent = label;
+    }
+
+    document.getElementById('timerToggle').addEventListener('click', () => {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+        document.getElementById('timerStatus').textContent = 'Temporizador pausado';
+      } else {
+        startTimer(timerRemaining || 60);
+      }
+    });
+
+    document.getElementById('resetToday').addEventListener('click', () => {
+      const state = loadState();
+      const key = getDayKey();
+      if (state.days && state.days[key]) {
+        delete state.days[key];
+        saveState(state);
+        location.reload();
+      }
+    });
+
+    document.querySelectorAll('.tab[data-target]').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab[data-target]').forEach((x) => x.classList.toggle('active', x === tab));
+        document.querySelectorAll('.panel').forEach((panel) => {
+          panel.classList.toggle('active', panel.id === tab.dataset.target);
+        });
+      });
+    });
+
+    document.querySelectorAll('.tab[data-mode]').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab[data-mode]').forEach((x) => x.classList.toggle('active', x === tab));
+        const mode = tab.dataset.mode;
+        document.querySelectorAll('.mobility-card').forEach((card) => {
+          const id = card.dataset.id;
+          const hide = mode === 'breve' && ['mov-pectoral', 'mov-cadera'].includes(id);
+          card.classList.toggle('hidden', hide);
+        });
+      });
+    });
+
+    document.querySelectorAll('.tab[data-session]').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab[data-session]').forEach((x) => x.classList.toggle('active', x === tab));
+        renderGym();
+      });
+    });
+
+    document.getElementById('saveDay').addEventListener('click', () => {
+      const state = loadState();
+      const day = ensureDayEntry(state);
+      day.energy = document.getElementById('energyLevel').value;
+      day.symptomLevel = document.getElementById('symptomLevel').value;
+      day.dayNote = document.getElementById('dayNote').value;
+      saveState(state);
+      alert('Nota guardada en este navegador.');
+    });
+
+    document.getElementById('exportData').addEventListener('click', () => {
+      const data = JSON.stringify(loadState(), null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'plan-clinico-paz-registros.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    document.getElementById('clearData').addEventListener('click', () => {
+      if (confirm('¿Borrar todos los registros guardados en este navegador?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        location.reload();
+      }
+    });
+
+    document.getElementById('importFile').addEventListener('change', async (e) => {
+      try {
+        const file = e.target.files[0];
+        if (!file) return;
+        const text = await file.text();
+        const json = JSON.parse(text);
+        if (!json || typeof json !== 'object') throw new Error('Invalid');
+        saveState(json);
+        location.reload();
+      } catch (err) {
+        alert('No se pudo importar ese archivo.');
+      }
+    });
+
+    function hydrateTrackingMeta() {
+      const state = loadState();
+      const day = ensureDayEntry(state);
+      document.getElementById('energyLevel').value = day.energy || '';
+      document.getElementById('symptomLevel').value = day.symptomLevel || '';
+      document.getElementById('dayNote').value = day.dayNote || '';
+      document.getElementById('dateText').textContent = new Intl.DateTimeFormat('es', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long'
+      }).format(new Date());
+    }
+
+    bindAllExercises();
+    hydrateTrackingMeta();
+    renderGym();
+    renderTimer();
+  </script>
+</body>
+</html>
